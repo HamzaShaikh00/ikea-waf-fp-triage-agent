@@ -327,7 +327,13 @@ export class ChatAgent extends AIChatAgent<Env> {
                 categories: info.rule?.categories,
                 ratelimit: info.rule?.ratelimit
               },
-              earlierCase: earlier ?? null
+              earlierCase: earlier ?? null,
+              ...(info.managed
+                ? {
+                    triageNote:
+                      "A Cloudflare managed rule matched a known exploit signature. Default verdict: true_positive. Only call it a false positive if the requester gave a concrete reason this exploit string is expected on this path (for example a SOC tool searching for IOCs); 'it is our traffic' is not enough."
+                  }
+                : {})
             };
           })
       }),
