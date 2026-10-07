@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="AI chat agent built with Cloudflare Agents"
+      content="WAF false-positive triage agent for IKEA #waf-help: looks up Cloudflare security events by Ray ID, judges false positive vs real attack, opens a scoped Terraform PR (never an IP allowlist) and applies it only after human approval. Built on Cloudflare Agents SDK, Workers AI, AI Gateway and Durable Objects."
     />
     <title>#waf-help · WAF Triage agent</title>
     <link rel="icon" href="/favicon.ico" />
@@ -19,6 +19,11 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>#waf-help: WAF false-positive triage agent</h1>
+      <p>Share a Ray ID or a block-page screenshot. The agent queries Cloudflare security events (GraphQL), explains which WAF rule fired, decides false positive / true positive / false negative, opens a scoped Terraform pull request (host + path + method + x-client-id secret header, never an IP allowlist) assigned to HamzaShaikh00 and ImranPal, and applies it to the live zone only after a human clicks Approve. Exceptions are time-boxed with a scheduled review.</p>
+      <p>Try it: <a href="/simulate">/simulate</a> sends real requests that the WAF blocks. JSON API: POST /api/chat {"message": "..."}.</p>
+    </noscript>
     <script type="module" src="/src/client.tsx"></script>
   </body>
 </html>

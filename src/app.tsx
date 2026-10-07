@@ -706,14 +706,26 @@ function Chat() {
           {messages.length === 0 && (
             <Empty
               icon={<ChatCircleDotsIcon size={32} />}
-              title="Start a conversation"
+              title="#waf-help: WAF false-positive triage"
               contents={
+                <div className="flex flex-col items-center gap-3">
+                  <p className="max-w-xl text-center text-sm text-kumo-inactive">
+                    Blocked by Cloudflare? Share a Ray ID or a screenshot of the block page. The agent
+                    finds the real security event, decides false positive or real attack, opens a
+                    scoped Terraform pull request (host + path + method + x-client-id header, never an
+                    IP allowlist) for HamzaShaikh00 and ImranPal, and changes the live WAF only after
+                    a human clicks Approve. Generate real blocks on{" "}
+                    <a href="/simulate" target="_blank" rel="noreferrer" className="underline">
+                      Simulate traffic
+                    </a>
+                    .
+                  </p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {[
-                    "What's the weather in Paris?",
-                    "What timezone am I in?",
-                    "Calculate 5000 * 3",
-                    "Remind me in 5 minutes to take a break"
+                    "Hey #waf-help, our kitchen planner uploads are being blocked, help!",
+                    "What has the WAF blocked in the last 24 hours?",
+                    "Show our WAF triage cases and open pull requests",
+                    "Why won't you just allowlist our office IP?"
                   ].map((prompt) => (
                     <Button
                       key={prompt}
@@ -730,6 +742,7 @@ function Chat() {
                       {prompt}
                     </Button>
                   ))}
+                </div>
                 </div>
               }
             />

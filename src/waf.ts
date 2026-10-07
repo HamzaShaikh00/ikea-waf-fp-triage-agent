@@ -293,7 +293,7 @@ export async function applyFix(env: WafEnv, plan: FixPlan): Promise<string> {
 export interface DemoBlock {
   rayId: string;
   datetime: string;
-  scenario: "custom" | "ratelimit" | "managed";
+  scenario: "custom" | "ratelimit" | "managed" | "managed-header";
   status: number;
   method: string;
   path: string;
@@ -307,8 +307,11 @@ const LOG4J_URI_RULE = "7dfd111a6bad4b86bf3522cce6c5792f";
 
 /** Turn a reported block into the same shape as a Cloudflare security event, with the real rule IDs. */
 export async function toSecurityEvent(env: WafEnv, b: DemoBlock): Promise<SecurityEvent> {
-  let rule = { ruleId: LOG4J_URI_RULE, rulesetId: FREE_MANAGED_RULESET, description: "Log4j URI", source: "firewallManaged" };
-  if (b.scenario !== "managed") {
+  let rule =
+    b.scenario === "managed-header"
+      ? { ruleId: "b453c8ace3a54e0ab7c791510b51dc4d", rulesetId: FREE_MANAGED_RULESET, description: "Log4j Headers", source: "firewallManaged" }
+      : { ruleId: LOG4J_URI_RULE, rulesetId: FREE_MANAGED_RULESET, description: "Log4j URI", source: "firewallManaged" };
+  if (b.scenario === "custom" || b.scenario === "ratelimit") {
     const phase = b.scenario === "ratelimit" ? "http_ratelimit" : "http_request_firewall_custom";
     const prefix = b.scenario === "ratelimit" ? "Shop API: rate limit" : "Shop API: block oversized bodies";
     const ep = await api<{ id: string; rules: Rule[] }>(env, "GET", `/zones/${ZONE_ID}/rulesets/phases/${phase}/entrypoint`);
