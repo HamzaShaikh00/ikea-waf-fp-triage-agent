@@ -488,7 +488,13 @@ function Chat() {
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-semibold text-kumo-default">
-              <span className="mr-2">⛅</span>Agent Starter
+              <span className="mr-1 text-kumo-inactive">#</span>waf-help
+              <span className="ml-2 text-sm font-normal text-kumo-inactive">
+                WAF Triage agent ·{" "}
+                <a href="/simulate" target="_blank" rel="noreferrer" className="underline">
+                  Simulate traffic
+                </a>
+              </span>
             </h1>
             <Badge variant="secondary">
               <ChatCircleDotsIcon size={12} weight="bold" className="mr-1" />
@@ -923,7 +929,7 @@ function Chat() {
               placeholder={
                 attachments.length > 0
                   ? "Add a message or send images..."
-                  : "Send a message..."
+                  : "Message #waf-help"
               }
               disabled={!connected || isStreaming}
               rows={1}

@@ -17,7 +17,8 @@
     // `ask_agent` tool lives (src/mcp.ts), the server Step 6's Secure MCP shield
     // protects. Keep both entries if you rename the path.
     // "/api/*" too: POST /api/chat is the plain JSON endpoint you can curl and, in Step 6, test shields against.
-    "run_worker_first": ["/agents/*", "/oauth/*", "/mcp", "/mcp/*", "/api/*"]
+    // "/pr/*" and "/simulate": the WAF triage agent's mock pull requests and demo traffic page.
+    "run_worker_first": ["/agents/*", "/oauth/*", "/mcp", "/mcp/*", "/api/*", "/pr/*", "/simulate"]
   },
 
   // Your AI Gateway, "agent-gateway". YOU create it once in your own account (dashboard: AI > AI Gateway >
