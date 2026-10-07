@@ -1,0 +1,97 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Every team builds in its OWN Cloudflare account, so every team uses the SAME names below.
+  // Only TWO values are yours: "account_id" and the route hostname. Both are on your team card
+  // (the Workspace page of the event site). `npm run dev` and `npm run deploy` run
+  // `npm run check:team` first and stop if either one is still a placeholder.
+  "account_id": "28f7455dd34a799f0a865733f2744166",
+  "name": "agent",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-06-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI", "remote": true },
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application",
+    // "/mcp" is new vs. stock agents-starter: it's where this Worker's own
+    // `ask_agent` tool lives (src/mcp.ts), the server Step 6's Secure MCP shield
+    // protects. Keep both entries if you rename the path.
+    // "/api/*" too: POST /api/chat is the plain JSON endpoint you can curl and, in Step 6, test shields against.
+    "run_worker_first": ["/agents/*", "/oauth/*", "/mcp", "/mcp/*", "/api/*"]
+  },
+
+  // Your AI Gateway, "agent-gateway". YOU create it once in your own account (dashboard: AI > AI Gateway >
+  // Create custom gateway, Gateway ID agent-gateway; Step 1, part 3). An id that does not exist fails every call with error 2001. Empty
+  // means the starter calls Workers AI directly.
+  "vars": { "AI_GATEWAY_ID": "agent-gateway" },
+
+  // Closed by default (R2, 2026-09-29): this Worker runs an unauthenticated chat agent that
+  // can call tools, so a public workers.dev URL is a real exposure for the whole build block,
+  // not just later on. Test with `npm run dev` (Vite + local Worker, no public URL needed)
+  // or `wrangler dev`; only turn these on if a host asks you to debug via a public URL.
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // Your demo hostname, from your team card (always agent.<your zone>). A Custom Domain: your first
+  // `npm run deploy` creates it, and Cloudflare adds the DNS record and certificate in your account's zone
+  // (allow a few minutes). NEVER ikea.events-cloudflare.com (the event site, not yours).
+  "routes": [{ "pattern": "agent.oceanic-wavelength.cftestdrive.com", "custom_domain": true }],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "ChatAgent",
+        "name": "ChatAgent"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["ChatAgent"],
+      "tag": "v1"
+    }
+  ],
+
+  // Uncomment what you need (snippets: the event's Platform Guide, /hack/platform).
+  // Match the binding NAME here to the `env.<NAME>` you use in src/server.ts.
+  // Step 4 uses one of these. The names below are the same in every team account: copy them as they are.
+
+  // "d1_databases": [{
+  //   "binding": "DB",
+  //   "database_name": "agent-db",
+  //   "database_id": "your-id-here"
+  // }],
+
+  // "r2_buckets": [{
+  //   "binding": "BUCKET",
+  //   "bucket_name": "agent-files"
+  // }],
+
+  // "kv_namespaces": [{
+  //   "binding": "KV",
+  //   "id": "your-id-here"
+  // }],
+
+  // A second Durable Object beyond ChatAgent — e.g. for a schedule-driven
+  // agent that isn't the chat surface. Add its own migrations entry too.
+  // "durable_objects": {
+  //   "bindings": [{ "name": "MY_AGENT", "class_name": "MyAgent" }]
+  // },
+
+  // "workflows": [{
+  //   "binding": "MY_WORKFLOW",
+  //   "name": "agent-workflow",
+  //   "class_name": "MyWorkflow"
+  // }],
+
+  // AI Search has no local emulator — remote:true proxies wrangler dev to your instance.
+  // "ai_search_namespaces": [{
+  //   "binding": "AI_SEARCH",
+  //   "namespace": "default",
+  //   "remote": true
+  // }],
+
+  // Browser Run also has no local emulator.
+  // "browser": { "binding": "BROWSER", "remote": true },
+
+  "observability": { "enabled": true }
+}
